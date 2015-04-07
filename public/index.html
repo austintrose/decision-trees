@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="">
+<![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang="">
+<![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang="">
+<![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+  <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <title>Decision Trees</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+  </head>
+  <body>
+    <!--[if lt IE 8]>
+          <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button class="navbar-toggle collapsed" data-target="#bs-example-navbar-collapse-2" data-toggle="collapse" type="button"><span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button> <a class="navbar-brand" href="index.html">Decision Trees</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown active">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Topics <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="#introduction">Introduction</a>
+                </li>
+                <li>
+                  <a href="#use_a_decision_tree">Use a Decision Tree</a>
+                </li>
+                <li>
+                  <a href="#random_splits">Random Splits</a>
+                </li>
+                <li>
+                  <a href="#information_gain">Information Gain</a>
+                </li>
+                <li>
+                  <a href="#gain_ratio">Gain Ratio</a>
+                </li>
+                <li>
+                  <a href="#cross_validation">Cross Validation</a>
+                </li>
+                <li>
+                  <a href="#overfitting">Overfitting</a>
+                </li>
+                <li>
+                  <a href="#pruning">Pruning</a>
+                </li>
+                <li>
+                  <a href="#conclusions">Conclusions</a>
+                </li>
+              </ul>
+            </li>
+            <li class="active">
+              <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">Web App</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 title">
+          <h1>
+            Decision Trees, for fun and profit!
+          </h1>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-7 col-md-offset-1">
+          <h3>
+            What's the story?
+          </h3>
+          <blockquote>
+            You are in the office pool, currently betting on the outcome of the basketball game next week, between the <strong>MallRats</strong> and the <strong>Chinooks</strong>. You have to decide which team will win, then bet on that team. Of course, you could just guess, or flip a coin. Here we present a way that (typically) will do better: by using observations about the past performance of the teams.
+          </blockquote>
+          <h3>
+            Web App
+          </h3>
+          <p>
+            Want to skip the story for now and get right to the web app?
+          </p><a class="btn btn-primary" href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">Launch &raquo;</a>
+        </div>
+        <div class="col-md-3">
+          <h3>
+            Topics
+          </h3>
+          <div class="list-group">
+            <a class="list-group-item" href="#introduction">Introduction</a> <a class="list-group-item" href="#use_a_decision_tree">Use a Decision Tree</a> <a class="list-group-item" href="#random_splits">Random Splits</a> <a class="list-group-item" href="#information_gain">Information Gain</a> <a class="list-group-item" href="#gain_ratio">Gain Ratio</a> <a class="list-group-item" href="#cross_validation">Cross Validation</a> <a class="list-group-item" href="#overfitting">Overfitting</a> <a class="list-group-item" href="#pruning">Pruning</a> <a class="list-group-item" href="#conclusions">Conclusions</a>
+          </div>
+        </div>
+      </div>
+
+      <a id="introduction" name="introduction"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Introduction
+          </h1>
+          <hr>
+          <p>
+            You've been tracking the MallRats over the season, and recorded various information about the previous games. In addition to the obvious logistics about each game:
+          </p><img align="right" src="img/anim_backetball.gif">
+          <ul>
+            <li>The name of the opponent
+            </li>
+            <li>Was the game at Home or Away, and
+            </li>
+            <li>Was the starting time 5pm, 7pm or 9pm.
+            </li>
+          </ul>
+          <p>
+            You also note some of the "coaching decisions":
+          </p>
+          <ul>
+            <li>Did Fantastic Fred (FF) start the game; or come in off the bench?
+            </li>
+            <li>Did Joe play center (in the MallRat offense), or did he play power forward?
+            </li>
+            <li>Did Joe guard the opponent's center, as opposed to one of the opponent's forwards?
+            </li>
+            <li>You also note whether that opponent's center was tall (over 6'9") or not.
+            </li>
+          </ul>
+          <p>
+            Finally, you record:
+          </p>
+          <ul>
+            <li>Who won the game.
+            </li>
+          </ul>
+          <p>
+            The results are shown below:
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offense
+                </th>
+                <th>
+                  Joe defense
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  OutCome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  5pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Talls
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  5pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Home
+                </td>
+                <td>
+                  5pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  5pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            You know, from various reliable sources, that this championship game will be away (not on the MallRat court), at 9pm, that Fantastic Fred will not start, and that Joe will play center on offense, but will not defend the Chinook's 7'1" center. That is, you know:
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offense
+                </th>
+                <th>
+                  Joe defense
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  Outcome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="warning">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  ??
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            What you don't know, of course, is who will win this game. Of course, it is reasonable to assume that this future game will resemble the past games. Note, however, there are no previous games that match these specific values -- ie, no previous game was exactly
+          </p>
+          <blockquote>
+            [Where=Away, When=9pm, FredStarts=No, JoeOffense=Center, JoeDefends=Forward, OppC=Tall].
+          </blockquote>
+          <p>
+            We therefore need to generalize -- by using the known examples to infer the likely outcome of this new situation. But how?
+          </p>
+          <h3>
+            Your turn
+          </h3>
+          <p>
+            Who do you think will win? ... and why?
+          </p>
+          <p>
+            <img align="left" hspace="10" src="img/small-dopeybasketballguy.gif"> Note that the MallRats have split their previous 20 games --- winning 10 and losing 10. So this "overall statistic" does not help. Similarly, they are 4-and-4 on away games -- which also does not help. However, they have lost all 4 of their previous 9pm games, which suggests they will lose this upcoming 9pm game. They have also lost 6 of the 8 games when Fred did not start. However, they are 8-Wins-and-3-Losses when Joe plays center on offense, which suggests they will win this game; and they are [6W, 4L] when the opposing center is over 7'. Or perhaps we should consider some combination: perhaps Joe does a good job defending tall centers, or whatever...
+          </p>
+          <p>
+            So, if you were going to place a bet, would you bet that the MallRats will win, or not?
+          </p>
+        </div>
+      </div>
+
+      <a id="use_a_decision_tree" name="use_a_decision_tree"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Use a Decision Tree
+          </h1>
+          <hr>
+          <p>
+            Give up?
+          </p>
+          <p>
+            <img align="right" hspace="10" src="img/bskhoop.gif"> Below we present a way to <em>learn</em> a good "predictor", which we can then use to predict whether the MallRats will win any specified game... and in particular, to predict who will win this MallRat/Chinook game.
+          </p>
+          <p>
+            We first need to present some notation: We view this predictor as a "classifier", as it is <em>classifying</em> this future game into either the "Won" or the "Lost" class. We will also view each game description, such as
+          </p>
+          <blockquote>
+            [Where=Away, When=9pm, FredStarts=No, JoeOffense=Center, JoeDefense=Forward, OppC=Tall]
+          </blockquote>
+          <p>
+            as an <em>instance</em> , composed of a set of <em>Attribute=Value</em> assignments (eg, <em>Where</em> is an attribute, and <em>Away</em> is its associated value). (Note this also corresponds to a database <em>record</em> .) As we did not indicate the outcome of this game we call this an " <em>unlabeled instance</em> "; the goal of a classifier is finding the <em>class label</em> for such unlabeled instances. An instance that also includes the outcome is called a " <em>labeled instance</em> " -- eg, the first row of the table...
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Instance #
+                </th>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  FredStarts
+                </th>
+                <th>
+                  Joe offense
+                </th>
+                <th>
+                  Joe defense
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  OutCome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="success">
+                <td>
+                  1
+                </td>
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            ...corresponds to the labeled instance:
+          </p>
+          <blockquote>
+            [Where=Home, When=7pm, FredStarts=Yes, JoeOffense=Center, JoeDefense=Forward, OppC=Tall, <b>Outcome=Won</b>]
+          </blockquote>
+          <h3>
+            Decision Trees
+          </h3>
+          <p>
+            In general, a decision tree is a <em>tree structure</em> ; see figure below.
+          </p>
+          <div class="center">
+            <img src="img/small-dt.gif"> <img src="img/inverted-tree.gif">
+          </div>
+          <p>
+            Like biological trees, our Computer Science trees also have a single root, whose branches lead to various subtrees, which themselves may have have sub-subtrees, until terminating in leaves. A computer science tree, however, grows upside-down: its root is at the top, and its branches go down. Go figure.
+          </p>
+          <p>
+            Technically: a tree is a set of <em>nodes</em> and <em>arcs</em> , where each arc "descends" from a node to the children of that node; in the figure above, the "FredStarts" node has 2 arcs: one going to the left-most "Won" node (via the "Yes"-arc), and another going (via the "No"-arc) to the "JoeOffense" node. That "JoeOffense" node is itself the root of a subtree, as it has children "Won" and "Lost". Nodes that are not leaves -- both the root "FredStarts", as well as "JoeOffense" --- are called <em>internal nodes.</em>)
+          </p>
+          <p>
+            Note each unlabeled instance (remember "instance" -- see above) corresponds to a path through the tree, from the root to a leaf: eg, the instance representing the upcoming MallRat/Chinook game will go "right" at the root, as Fantastic Fred is not starting, then go left at the JoeOffense node, as Joe is playing center on offence. This will end on the "Won" leaf node. That is, this tree is asserting its guess that the MallRats will win this game.
+          </p>
+          <p>
+            Of course, this is just the opinion of this single tree. Note the data has a different opinion: there are 4 previous games where "Fred did NOT start and Joe played Center on offense", and the MallRats won <em>only 2 of these 4</em> ! Similarly, the "FredStarts = Yes" branch points to a "Lost" node; note however the MallRats actually WON 8 of 10 games where Fred started.
+          </p>
+          <p>
+            This information clearly lessens our confidence that this specific tree is correct, as we naturally assume that these previous games should be relevant. Our task, then, is:
+          </p>
+          <blockquote>
+            How to use a data set (such as the records from the previous games) to LEARN an accurate decision tree?
+          </blockquote>
+          <p>
+            We will then use that learned tree to "classify" a new example: here, to determine whether the MallRats will win this upcoming game; see figure below.
+          </p>
+          <div class="center">
+            <img src="img/flowchart.gif">
+          </div>
+          <h3>
+            Learning Decision Trees
+          </h3>
+          <p>
+            A decision tree needs to decide when to split on which attributes. In particular, what is the appropriate root (ie, top-most) attribute? Should it be "<em>FredStarts</em>" or "<em>JoeOffense</em>" or "<em>Where</em>" or ... ?
+          </p>
+          <p>
+            It is then clear which records (ie, previous games) go to which child: eg, if the root was "<em>FredStart</em>", the records for all 10 "FredStart" games go left (following the "<em>Yes</em>" arc)
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offense
+                </th>
+                <th>
+                  Joe defends
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  OutCome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="danger">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="success">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            and the other 10 "Fred didn't start" games all go right.
+          </p>
+          <p>
+            Another question is "When to stop?". For example, after following the "FredStarts = Yes" arc from the root, we could stop here. Note, however, that the MallRats won 8 of these 10 games, and lost the remaining 2. While this does suggest the MallRats will win in this situation, there are counter-examples, which suggests we should ask some other question here. Here, if we ask " <em>Where</em> ", we see that the MallRats won all 6 of the <em>Where=Home</em> games that Fred started; see below:
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offense
+                </th>
+                <th>
+                  Joe defends
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  OutCome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="">
+                <td>
+                  Away
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Short
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+              <tr class="info">
+                <td>
+                  Home
+                </td>
+                <td>
+                  7pm
+                </td>
+                <td>
+                  Yes
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Won
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            On this branch, we can confidently stop, and produce a "Won" label; see tree. The idea here is to continue splitting until "purity" -- ie, until all of the records that reach the node have the same label. We then create a leaf node, whose value is that label (here, " <em>Won</em> ").
+          </p>
+          <h3>
+            Actual Demo
+          </h3>
+          <p>
+            So, for now, the only issue is deciding which attribute to test. How?
+          </p><img align="right" hspace="10" src="img/computer.gif">
+          <p>
+            Why not just chose attributes <em>randomly</em> ? To find out...
+          </p>
+          <ul>
+            <li>Run the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a> by selecting "<em>Initialize</em>" and then "<em>Run</em>" from the "Algorithm" menu. (Be sure the title above the table (on top left of top-left "Dataset" panel) says "Basketball Training Examples", and that the "Splitting Function" (under the "Algorithm" menu) is set to "<em>Random</em>".) If you can't see the entire tree, right-click on the tree panel -- a popup menu will appear. Select "<em>Full Panel Tree View</em>" to expand the panel to full size.
+            </li>
+            <li>Don't worry about how the actual algorithm is running -- we'll discuss that later.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <a id="random_splits" name="random_splits"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Random Splits
+          </h1>
+          <hr>
+          <p>
+            The tree produced probably looked something like this...
+          </p>
+          <div class="center">
+            <img src="img/Random_BB.gif">
+          </div>
+          <p>
+            This one has a total of 22 nodes, including 10 internal (splitting) nodes.
+          </p>
+          <h3>
+            Why not split Randomly?
+          </h3>
+          <p>
+            As you saw, the tree can grow <b>huge</b> when the splits are done randomly. These trees are hard to understand, and can be difficult to store. And as you may have noticed, different runs will produce different answers. (<a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">Wanna try it?</a> Choose "<i>Initialize</i>" and then "<i>Run</i>" from the "Algorithm" menu).
+          </p>
+          <p>
+            It is known that larger trees are typically less accurate than smaller trees. (Look into "Occam" algorithms and "No Free Lunch" papers to learn more.)
+          </p>
+          <p>
+            How then can we produce small trees? Before we provide one approach, we encourage you to try it on your own.
+          </p>
+          <p>
+            You can use the web app to do this: The general "Decision Tree learning algorithm" ( <i>LearnDT</i> ) grows a decision tree one node at a time. At each time, it considers the set of records that reach a specific location, based on the "path" to this point --- which corresponds to a sequence of "attribute = value" assignments (eg, <i>[FredStarts=No, JoeOffence=Forward]</i> ). It then considers each of the remaining attributes, as the possible label for this node --- here, <i>JoeDefends</i> , <i>OppC</i> , ... (But not any of the attributes already encountered on the path to here. Why?)
+          </p>
+          <h3>
+            Your turn!
+          </h3><img align="right" hspace="10" src="img/computer.gif">
+          <p>
+            The <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a> allows the user to grow a tree: If you left-click at the end of any such path (shown as a blue triangle <img src="img/blue-triangle.gif">), you get the option of selecting which attribute to split on. (This is true at the beginning as well, when bottom "decision tree" screen is blank.) Of course, make sure you're using the "<i>Basketball</i>" dataset.
+          </p>
+          <p>
+            Your goal is to find a small tree that is "consistent" with the records --- that is, which correctly determines which games were Won, vs Lost?
+          </p>
+          <p>
+            Can you find a consistent tree with under 10 internal nodes? ... under 8 internal nodes? ... under 5?
+          </p>
+        </div>
+      </div>
+
+      <a id="information_gain" name="information_gain"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Information Gain
+          </h1>
+          <hr>
+          <h3>
+            Seeking SMALL consistent Decision Trees
+          </h3>
+          <p>
+            As you saw, it can be tricky to find a small consistent decision tree. Below we show a way to automate this process... using <b>Information Theory</b>:
+          </p>
+          <h3>
+            Information Theory
+          </h3>
+          <img align="left" hspace="20" src="img/nerd.gif">
+          <p>
+            Think of playing "20 questions": I am thinking of an integer between 1 and 1,000 -- what is it? What is the first question you would ask?
+          </p>
+          <p>
+            You could ask "<i>Is it 752?</i>" Or "<i>Is it a prime number between 123 and 239?</i>". Most people, however, would first ask "<i>Is it between 1 and 500?</i>"
+          </p>
+          <p>
+            Why? Because this answer provides the most information: It typically makes sense to ask a question that "splits" the remaining options in half, whether the response is "Yes" or "No". (Here, if I answer "Yes", the number is in the range {1,..., 500}, and if I answer "No", the number is in the range {501, ..., 1000}; either way, there are only 500 possible values, which is half of the original 1000.)
+          </p>
+          <p>
+            This is typically viewed in terms of "entropy", which (here) measures how much MORE information you need before you can identify the integer. (Entropy is basically "minus information".) Initially, there are 1000 possible values, which we assume are equally likely. We therefore need to ask (roughly) 10 more "Yes/No" questions to identify the integer; this is the entropy of this "uniform over 1000 values" distribution.
+          </p>
+          <p>
+            Given either answer to "<i>Is it between 1 and 500?</i>" question, we need only ask about 9 more "Yes/No" questions; and "9" is the entropy of the remaining "uniform over 500 values" distribution.
+          </p>
+          <h3>
+            Information Gain as Splitting Criteria
+          </h3>
+          <p>
+            We can use this idea to decide on the appropriate "splitting criteria": As discussed above, as the <i>LearnDT</i> algorithm is building the decision tree, it is dividing, and sub-dividing, the set of "training instances" (eg, descriptions of the games) based on the attributes used in the various nodes encountered on the path. Eg, for the figure below: all 20 records reach the root node (labeled "<i>FredStarts</i>"); of these, 10 go right (corresponding to "<i>FredStarts=No</i>") to the node labeled "<i>JoeOffense</i>," etc.
+          </p>
+          <div class="center">
+            <img src="img/small-dt.gif">
+          </div>
+          <h3>
+            Simple Decision Tree
+          </h3>
+          <p>
+            Each node, therefore, corresponds to the set of records that reach that position, after being filtered by the sequence of "<i>attribute = value</i>" assignments. (Eg, of the 10 records that survive the "<i>FredStarts=No</i>" test at the root, only 4 survive the subsequent "<i>JoeOffence=Center</i>" test to reach the left child of that node.)
+          </p>
+          <p>
+            <i>LearnDT</i> in general will use these records to decide which attribute to select for that node. It does this by considering each of the eligible attributes --- ie, the ones that have NOT been used in the path to this node. For each such attribute, it computes the "quality" of the split produced by this attribute; it then selects the attribute with the best quality.
+          </p>
+          <p>
+            One quality measure is "Information Gain": Given a set of records, the quality of each attribute is the average of the entropies of the nodes produced by this split. Well... minus this quantity. (Recall that "information = minus entropy".) That is, we want to gain as much information as possible, to produce a situation where the remaining entropy is as small as possible. ("0 entropy" means that we can identify the integer... we are trying to get to this situation.))
+          </p>
+          <p>
+            If that made sense, great. Otherwise, feel free to skip the details, and just play with the code:
+          </p>
+
+          <h3>
+            Now you try it...
+          </h3>
+          <img align="right" hspace="10" src="img/small-computer.gif" vspace="10">
+          <p>
+            Enough talk. What really happens here?
+          </p>
+          <p>
+            <img align="right" hspace="10" src="img/tiny_tree.gif" vspace="10"> To try out this criteria: Go back to the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a>, but here change the "Splitting Function" to "<i>Gain</i> . Of course, make sure you're viewing the "<i>Basketball</i>" dataset.
+          </p>
+          <p>
+            "<i>Run</i>" to see the resulting decision tree (Note that is will NOT be the tree shown above). Left-clicking on any node in the tree will highlight the examples from the "Basketball" dataset that reach the node (look for the yellow, highlighted rows in the upper left-hand table).
+          </p>
+          <p>
+            There are MANY other things you can do using this web app -- eg, adjust the splitting function, grow your own tree, trace the code, watch it running slowly, etc etc etc.
+          </p>
+        </div>
+      </div>
+
+      <a id="gain_ratio" name="gain_ratio"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Gain Ratio
+          </h1>
+          <hr>
+          <p>
+            You should have seen the following tree:
+          </p>
+          <div class="center">
+            <img src="img/Basketball_Gain.gif">
+          </div>
+          <p>
+            Notice this tree is much smaller than the tree produced by Splitting Randomly, as it has only 12 nodes, including 5 internal nodes. It is claiming the MallRats win when:
+          </p>
+          <ul>
+            <li>Joe defends forwards during 5pm games
+            </li>
+            <li>Fred starts on 7pm games and
+            </li>
+            <li>when Joe plays center on away games that Joe does not start.
+            </li>
+          </ul>
+          <p>
+            We can then use this tree to predict the outcome of the game:
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offence
+                </th>
+                <th>
+                  Joe defense
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  Outcome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="warning">
+                <td>
+                  Away
+                </td>
+                <td>
+                  9pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Forward
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  ??
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Following the relevant path, we see the answer is "Lost", as this game will start at 9pm.
+          </p>
+          <h3>
+            Problems with Information Gain
+          </h3>
+          <p>
+            <img align="right" hspace="20" src="img/nerd.gif"> While there are several motivations for using InformationGain as a quality measure, there are also several limitations. One problem is: it tends to prefer attributes with MANY values; ie, it would prefer to split on say the 20-valued "OpponentName" attribute (if we had included it here), over the current 2- or 3-valued attributes. Indeed, it would further prefer to split on "AudienceSize" field, which could have any integer values {1,2,3,..., 150, 151, ..., 1023, 1024, ... }).
+          </p>
+          <p>
+            Why? The information possible for a <i>k</i> -ary attribute is between <i>0</i> and <i>ln k</i> ; this means the values for a binary attribute cannot be larger than <i>ln 2 = 1</i> , while the largest possible value for a 20-ary attribute is <i>ln 20 == 4.3</i> , and for a 1024-ary attribute is <i>ln 1024 = 10</i> .
+          </p>
+          <p>
+            Note, however, these larger-arity attributes are not necessarily better, even though the InformationGain criteria would prefer them. (Indeed, it is likely that "AudienceSize" may in fact be one of the <i>least</i> important attributes!)
+          </p>
+          <p>
+            One trick to avoid this specific problem is to use <i>GainRatio</i> , which basically levels the playing field by penalizing the multiple-valued attributes.
+          </p>
+          <h3>
+            Now you try it...
+          </h3><img align="right" hspace="20" src="img/small-computer.gif">
+          <p>
+            To try out this criteria: Go back to the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a> and change the "Splitting Function" to "<i>Gain Ratio</i>" (Recall that you can change the splitting function using the "Splitting Function" submenu under the "Algorithm" menu).
+          </p>
+          <p>
+            Then choose "<i>Run</i>" from the "Algorithm" menu to see the resulting tree. Or you can "<i>Trace Run</i>", or "<i>Step</i>" or whatever. If you left-click on any unfinished node <img src="img/blue-triangle.gif">, you will now get the Gain Ratio score for the attributes, rather than the Gain score.
+          </p>
+          <p>
+            You can also flip back and forth between these splitting functions while growing the tree.
+          </p>
+        </div>
+      </div>
+
+      <a id="cross_validation" name="cross_validation"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Cross Validation
+          </h1>
+          <hr>
+          <p>
+            You should have produced the tree shown below:
+          </p>
+          <div class="center">
+            <img src="img/Basketball_GainRatio.gif">
+          </div>
+          <p>
+            For comparison, the tree grown using InformationGain is:
+          </p>
+          <div class="center">
+            <img src="img/Basketball_Gain.gif">
+          </div>
+          <h3>
+            Evaluating Decision Trees
+          </h3>
+          <p>
+            Hmmm... so now we have 2 different decision trees. Both are correct over the "training cases" --- the set of games whose outcomes we already know. And they have comparable size. Note, however, they give different answers here: The current tree, based on <i>Gain Ratio</i> , claims that the MallRat's will win.
+          </p>
+          <p>
+            Two different splitting criteria, leading to two different trees, leading to two different outcomes. Which outcome should we predict --- ie, which tree should we believe?
+          </p>
+          <p>
+            To help address this... recall that our goal is to predict the <i>unknown</i> outcome of a future game --- a challenge which is subtly different from correctly predicting the outcome of the <i>known</i> games. Here, it would be useful to see, for example, whether either tree could correctly predict the outcome of tomorrow's game, between the MallRats and the SnowBlowers. This is not our immediate task, which is to predict the outcome of next week's MallRat/Chinook game; we hope to use it, however, to help us determine which tree seems more correct.
+          </p>
+          <p>
+            <img align="left" hspace="10" src="img/tn_basketball.gif"> Of course, we need to know the outcome of that MallRat/SnowBlower game, before we can use it in evaluating our two trees... which is not known, as that game has not been played.
+          </p>
+          <p>
+            However, we can use this basic idea -- of evaluating our learners based on the performance of their trees on unseen examples. The challenge, of course, is finding a source of "unseen examples": examples that <i>the learner</i> has not seen, but which <i>we</i> can see, and then use to evaluate the performance of the various classifiers obtained.
+          </p>
+          <p>
+            Why not use the examples we already have? For example, rather that train on all 20 games, we could instead train only on the first 19 games --- ie, <b>not</b> show the learner the final game:
+          </p>
+          <table class="table table-condensed table-bordered">
+            <thead>
+              <tr>
+                <th>
+                  Game#
+                </th>
+                <th>
+                  Where
+                </th>
+                <th>
+                  When
+                </th>
+                <th>
+                  Fred Starts
+                </th>
+                <th>
+                  Joe offence
+                </th>
+                <th>
+                  Joe defense
+                </th>
+                <th>
+                  Opp C
+                </th>
+                <th>
+                  OutCome
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="danger">
+                <td>
+                  20
+                </td>
+                <td>
+                  Away
+                </td>
+                <td>
+                  5pm
+                </td>
+                <td>
+                  No
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Center
+                </td>
+                <td>
+                  Tall
+                </td>
+                <td>
+                  Lost
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            The two learners (using Information Gain and Gain Ratio resp.) would each learn their respective trees based only on the first 19 games. We could then see which tree did best on the (unseen by the learner) 20 <sup>th</sup> game. Now if we find the InfoGain-based tree was correct on this 20 <sup>th</sup> game but the GainRatio-based tree was not, we would probably be more inclined to believe that Information Gain worked better than Gain Ratio, at least in this situation. ... and in the situation where we considered all 20 games. We would therefore use the InfoGain-based learner. (Otherwise, if if GainRatio was correct but Gain was not, we would use the Gain Ratio-based tree.)
+          </p>
+          <h3>
+            Cross-Validation
+          </h3>
+          <p>
+            This is the basis for <i>Cross-Validation</i> : giving several learners only a <i>subset</i> of the training sample, then evaluating them on the remaining "hold-out" set. Here, are suggesting the idea of training on 19 records and testing on the 20 <sup>th</sup> .
+          </p>
+          <p>
+            To state this more precisely (sorry about the notation): Let IG <sub>19</sub> be the tree learned using the InformationGain splitting criterion, on the first 19 games and GR <sub>19</sub> be the tree learned using the GainRatio splitting criterion, on these 19 games; similarly IG <sub>20</sub> (resp, GR <sub>20</sub> ) is the tree learned using InformationGain (resp, GainRatio) on all 20 games. If IG <sub>19</sub> does well on the "unseen by the learner" 20 <sup>th</sup> game but GR <sub>19</sub> does not, then we would figure InformationGain seemed like a good idea, and so use IG <sub>20</sub> to classify the upcoming MallRat/Chinook game.
+          </p>
+          <p>
+            Of course, this only gives the outcome of a single game, and it is quite possible that both learners would be correct here (eg, both claim the MallRats will win) or both would be wrong. ... which would not help us discriminate between the two classifiers IG <sub>19</sub> and GR <sub>19</sub> and hence the two learners (based on Gain and Gain Ratio). It may be better instead to train on, say, the first 15 games, then compare the resulting decision trees on the remaining 5 games --- ie, determine the relative scores of IG <sub>15</sub> and GR <sub>15</sub>, over these final 5 games. See chart.
+          </p>
+          <div class="center">
+            <p><img src="img/holdout.gif"></p>
+          </div>
+          <p>
+            This latter approach would give us a fairly accurate measure of the quality of the 2 decision trees produced (based on Gain and GainRatio). Wny not go even further, and train on 1 game, then test on the remaining 19? This would provide an even more accurate measure of the quality of the 2 decision trees produced, IG <sub>1</sub> based on Gain and GR <sub>1</sub> based on GainRatio. However, those two trees would (we expect) be worse than the trees produced using all 20 examples; that is we expect IG <sub>1</sub> to be less accurate than IG <sub>15</sub> , which in turn is less accurate than IG <sub>20</sub> ; and similarly GR <sub>1</sub> is inferior to GR <sub>15</sub> will is inferior to GR <sub>20</sub> .
+          </p>
+          <p>
+            Why less accurate? Our learning task has a lot in common with "estimating" some quantity --- eg, estimating the height of typical adult men. If we examine only one or two men, we are not likely to see a representative sample of men, and so the empirical average of the observed heights may not be correct. However, as we see more and more men, the empirical average is more and more likely to be close to the true average height. That is, we expect to get better estimates with more examples; in our current learning context, we similarly expect that IG <sub>20</sub> will be superior to IG <sub>15</sub>.
+          </p>
+          <h3>
+            Size of Holdout Set
+          </h3>
+          <p>
+            <img align="right" hspace="20" src="img/nerd.gif">The only reason to use IG <sub>15</sub> , rather than IG <sub>20</sub> , is to help us contrast Gain versus Gain Ratio, as that means we have labeled instances "left over", which we use to evaluate the different learners. We still need some way to divide the given "labeled sample" into the "training sample" (shown to the various learning algorithms) and the "holdout sample" (used to evaluate the quality of the results produced by these algorithms). As suggested above, we need a large training sample to produce accurate decision trees, but we also need a large holdout sample to be able to identify which of these decision trees is really best. Of course, as these sets are <i>disjoint</i> , making one larger necessarily makes the other smaller...
+          </p>
+          <p>
+            For notation: we call the error on the <i>training set</i> the "resubstitution error"; this measures how well the learned decision tree can do, when tested on the data that it was trained on. By contrast, there is an underlying distribution of labeled instances (representing all possible games that the MallRats might play); the error, over this distribution, is called the "true error" or "generalization error". Note that we are interested in the generalization error, as this will allow us to predict the result of the future MallRat/Chinook game. It turns out that the error on the hold-out set is, in general, an unbiased estimate of the true error. By constrast, the resubstitution error is typically "overly optimistic" --- that is, this error score is typically LOWER than the true error, which means any decision based on this score is problematic. Eg, a classifier (such as a decision tree) might have 0% resubstitution error (as the decision tree fit the training data perfectly) but still have a very large true error.
+          </p>
+          <p>
+            What is a good partitioning? There are lots of ideas here -- given a training sample of <i>m</i> "labeled instances", perhaps use <i>m * 0.632</i> instances for training and the remaining <i>m * 0.368</i> for evaluation.
+          </p>
+          <h3>
+            Try it now
+          </h3><img align="right" hspace="10" src="img/small-computer.gif" vspace="10">
+          <p>
+            To create a holdout dataset (which the web app calls a "Testing" dataset), follow the steps below:
+          </p>
+          <ul>
+            <li>Go back to the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a> and clear the current tree by choosing "<i>Initalize</i>" from the "Algorithm" menu. Make sure you're still viewing the "<i>Basketball</i>" dataset.
+            </li>
+            <li>Hold down the &lt;Ctrl&gt; key and click on four or five examples (rows) at random from the "Basketball - Training Examples" table (in the upper left "Dataset View" panel). Each row you pick will be highlighted in yellow.
+            </li>
+            <li>Pull down the "Dataset" menu and choose the "<i>Move to Testing Set</i>" option to move the examples you selected into a new holdout dataset. You can use the "<i>Show Testing/Training Set</i>" option under the "Dataset" menu to toggle the table view between the training and testing/holdout datasets.
+            </li>
+          </ul>
+          <p>
+            Now that you've created a holdout dataset, it's time to see how well a tree built using just the training data will perform on the holdout examples.
+          </p>
+          <ul>
+            <li>First, make sure the splitting function is set to "<i>Gain</i>" or "<i>Gain Ratio</i>". This will keep our new tree at a reasonable size.
+            </li>
+            <li>Select "<i>Run</i>" from the "Algorithm" menu. You should see a new tree, created using the training examples.
+            </li>
+            <li>The pie chart, in the upper left-hand corner of the "Tree View" panel, should report that the tree correctly classifies 100% of the training examples (stated another way, the tree has zero "resubstitution" error, as we would expect).
+            </li>
+            <li>If you right-click on the "Tree View" panel, a popup menu will appear. Select the "<i>Show Testing Results</i>option to view the tree's performance on the holdout examples. Some nodes in the tree will change color, and the pie chart will now report the number of holdout examples that have been correctly classified.
+            </li>
+          </ul>
+          <p>
+            If you were lucky, the tree might have correctly classified all the holdout examples. It's likely, however, that there were one or two (or more) holdout examples that the tree didn't properly classify. One way to reduce the number of errors is by "pruning" the tree, which is the subject of a later section...
+          </p>
+        </div>
+      </div>
+
+      <a id="overfitting" name="overfitting"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Overfitting
+          </h1>
+          <hr>
+          <p>
+            As noted above, learning means generalizing from the observed information. This in turn corresponds to a form of "educated guessing", which is NOT guaranteed to be correct. ... <i>Learning means always saying you're sorry.</i>
+          </p>
+          <p>
+            This is true here for decision tree learning. Lke most standard learning algorithms, decision tree learners will first try to produce a tree that is perfect over the training sample, in that this tree will correctly classify all of the instances.
+          </p>
+          <p>
+            This is problematic, however, as this perfect decision tree may be encoding the ideosyncracies of the specific dataset used, rather than the true distribution. This is especially when the underlying "classification function" is stochastic (ie, when there is no deterministic function that is always correct), or when the training data is relatively small.
+          </p>
+          <p>
+            To illustrate these ideas, consider the task of determining the "bias" of a coin: ie, the percentage of the time it will land on Heads when it is flipped. We know that the empirical average (the number of times it landed on heads, divided by the total number of flips) will converge to the true bias, as we take more and more flips. However, this estimate may be significantly wrong if we consider very few flips. For example, consider flipping a coin only ONE time. If this one flip landed "Heads", we would infer that this coin is ALWAYS heads --- ie, "Prob of heads = 1.0". This does represent the data perfectly (all 1 flip), but is unlikely to correspond to the underlying distribution.
+          </p>
+          <p>
+            To take another (now-standard) example: Suppose we want to decide whether the FrogLegs will win in the next basketball game, given rather silly training (read "uncorrelated") data: We look over the first 50 attendees of the game, and ask whether their birthday was in the first half of the calendar year (ie, January through June) or the second half. Here, there is no correlation between any data point, and the classification ("Won/Lost").
+          </p>
+          <h3>
+            Try it out
+          </h3><img align="right" hspace="20" src="img/small-computer.gif">
+          <p>
+            Go to the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a>, and try to learn from the "<i>FrogLegs</i>" dataset. Try first using the Gain splitting criteria (although it should not matter which splitting function you use).
+          </p>
+          <p>
+            Here, we are using the first 70 games as training data. You can run this, using the "FrogLegs" dataset (which can be loaded by selecting "<i>FrogLegs</i>" from the "Load Dataset" submenu under the "Dataset" menu).
+          </p>
+          <p>
+            Now, let's say that instead of building a tree using all the available data, we take 30 examples (at random) and move them to our holdout dataset (which you can do by following the procedure mentioned on the previous page). We can estimate the true error of the learned tree (learned from the 40-record training set) by running it on this holdout set of 30 records.
+          </p>
+          <ul>
+            <li>Try running the algorithm (by choosing "Algorithm" menu) with the 30 record holdout dataset.
+            </li>
+            <li>Right-click on the "Tree View" panel and choose the "<i>Show Testing Results</i>" option to view the tree's performance on the holdout records.
+            </li>
+          </ul>
+          <p>
+            The tree should perform quite poorly on the holdout dataset. We need to develop a way to increase the tree's classification accuracy on the holdout records.
+          </p>
+        </div>
+      </div>
+
+      <a id="pruning" name="pruning"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Pruning
+          </h1>
+          <hr>
+          <p>
+            Here, <i>LearnDT</i> no doubt produced a huge tree; typically with over 30 nodes. (Using Gain, we produced a tree with 37 nodes; 18 internal.) While its resubstitution error is near 0 (as we continued to purity when possible), its apparent generalization error (measured on the hold-out set) was huge --- typically around <i>0.375</i>.
+          </p>
+          <p>
+            However, notice that FrogLegs wins 75% of the time; this means trivial decision tree, containing just the single (leaf) node labeled "Won", would have a much smaller error --- around <i>0.25</i> .
+          </p>
+          <p>
+            This means the larger decision tree is both larger (and so takes more storage, and is harder to explain) and less accurate!
+          </p>
+          <p>
+            While this is an extreme case, this type of situation is quite common, and has led to a technology to address this issue.
+          </p>
+          <p>
+            This problem is called <i>overfitting</i> , which refers to the situation where the data suggests the wrong classifier: Eg, where the resubstitution error of classifier C1 is lower than that of C2, while the true error of C2 is lower than C1's (here you pick C1, even though C2 is actually better). This is happening here, as the trivial tree
+          </p>
+          <p class="center">
+            <img hspace="10" src="img/Single_Node_FrogLegs.gif">
+          </p>
+          <p>
+            appears worse than the propsed tree
+          </p>
+          <p class="center">
+            <img hspace="5" src="img/small-froglegs.gif">
+          </p>
+          <p>
+            but actually is better.
+          </p>
+          <h3>
+            Pruning
+          </h3>
+          <p>
+            The basic <i>LearnDT</i> algorithm tried to grow each branch to purity. As shown above, this is typically way too far, as this allows the learning algorithm enough "degrees of freedom" that it can fit arbitrary nuances of the training data. It is better, in general, to restrict the learner to "smaller" trees, as this means they cannot match any possible ideosyncracy of the data. (That is, if such a smaller tree does match the data, it is unlikely to be a fluke).
+          </p>
+          <p>
+            But how small should we force our trees to be? While this is hard to tell a priori, we can still use this insight as follows: First grow the trees as far as possible (ie, to purity if possible) --- see top figure below. Then prune back some branches, to produce a smaller tree (a "subtree" of the initial tree) -- see bottom figure below.
+          </p>
+
+          <div class="center">
+            <img src="img/Basketball_Gain.gif"><br>
+            <img src="img/Basketball_Gain-Reduced.gif">
+          </div>
+
+          <p>
+            How? Notice the larger tree will necessarily have a smaller <i>resubstitution error</i> than the smaller one; this is by construction (recall how the trees were grown!). However, as we discussed earlier, this does not mean the larger tree will have a smaller <i>generalization error</i> . Why not use a hold-out set to estimate the <i>generalization errors</i> of the two trees?
+          </p>
+          <p>
+            <img align="left" hspace="10" src="img/animatedcomputer.gif">The algorithm is quite straight-forward: First grow the tree, from root to leaves, as discussed above. But here only use a subset of given data, called the "training set". Then consider pruning the tree, starting from the leaves: Here, consider making each penultimate node into a leaf, with the appropriate label (that is, the label that is most common over the instances that reach here). Then measure the the "hold-out error" of the resulting tree (over the hold-out data) and compare that with the hold-out error of the current (unpruned) tree. If the pruned tree has smaller hold-out error, then leave that node as a leaf; otherwise revert to the current tree. Then recur -- considering all branching, and going up the branch if appropriate.
+          </p>
+          <h3>
+            Try it!
+          </h3><img align="right" hspace="10" src="img/small-computer.gif" vspace="10">
+          <p>
+            Go to the <a href="http://130.215.242.36/ajaxswing/apps/decision-trees" target="_blank">web app</a> , and make sure the "<i>FrogLegs</i>" dataset is loaded. Here, we'll use one type of pruning, known as "<i>Reduced-Error Pruning</i>" (described above) to tidy up our overgrown tree.
+          </p>
+          <ul>
+            <li>Initially, we need to create a holdout dataset. To do this quickly, choose the "<i>Create Random Testing Set...</i>" option from the "Dataset" menu. A window will appear with a slider that allows you to select the percentage of the total dataset to use for the holdout set; keep the slider at 50% (we'll use half the data for training and half for the holdout set) and click "Ok".
+            </li>
+            <li>Set the splitting function to "<i>Random</i>" (we want to build a large-ish tree and then prune it back).
+            </li>
+            <li>Set the pruning algorithm to "<i>Reduced-error</i>" by choosing the appropriate option from the "Set Pruning Function" submenu under the "Algorithm" menu.
+            </li>
+          </ul>
+          <p>
+            Now run the algorithm (by selecting the "<i>Run</i>" option from the "Algorithm" menu) and watch the result. Alternatively, if tree construction and pruning occurs too quickly, you can use the "<i>Step</i>" option under the "Algorithm" menu to step through the algorithm line by line. Occassionally, the randomly generated tree might correctly classify all the holdout examples (it's rare, but it can happen), and so no pruning will take place. If this is the case, try generating another random holdout set and running the algorithm again.
+          </p>
+        </div>
+      </div>
+
+      <a id="conclusions" name="conclusions"></a>
+      <div class="separate"></div>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <h1>
+            Conclusions
+          </h1>
+          <hr>
+          <p>
+            <b>Congratulations!</b> You now know essentially all of the important points related to learning decision trees... as well as many points seminal to learning in general:
+          </p>
+          <ul>
+            <li>Why learning a classifier can be useful
+            </li>
+            <li>What a decision tree is
+            </li>
+            <li>How to write a basic decision tree learner
+            </li>
+            <li>The role of information theory
+            </li>
+            <li>Overfitting and pruning
+            </li>
+          </ul>
+          <p>
+            Of course, we have provided just the tip of the iceberg; there are many many other areas to investigate --- some fairly well resolved, while others remain topics of very active research, which will continue to lead to interesting, and financially rewarding, results.
+          </p>
+          <p>
+            We list some of them below.
+          </p>
+          <hr>
+          <p>
+            By the way, you'll be pleased to know the MallRats did win the game.
+          </p>
+          <div class="center"><img src="img/Ribbons_Confetti.gif"></div>
+        </div>
+      </div>
+
+    </div><!-- /container -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')
+    </script>
+    <script src="js/vendor/bootstrap.min.js"></script>
+  </body>
+</html>
